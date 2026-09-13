@@ -1,0 +1,8 @@
+# Share datasets with sharenfs/sharesmb set.
+# If the NFS/SMB server is managed by dinit, add e.g. `after = nfs-server`.
+
+type       = scripted
+command    = /usr/bin/zfs share -a
+restart    = false
+depends-on = zfs-mount
+after      = local.target

@@ -1,0 +1,9 @@
+# Wait for /dev/zvol links, needed when fstab or swap reference zvols.
+
+type       = scripted
+command    = /usr/bin/zvol_wait
+restart    = false
+depends-on = zfs-mount
+before     = early-fs-fstab.target
+before     = early-fs-local.target
+before     = swap

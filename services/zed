@@ -1,0 +1,8 @@
+# ZFS Event Daemon
+
+type            = process
+command         = /usr/bin/zed -F
+restart         = true
+smooth-recovery = true
+depends-on      = zfs-mount
+depends-on      = pre-local.target

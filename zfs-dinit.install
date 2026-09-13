@@ -1,0 +1,7 @@
+post_install() {
+    echo "==> Enable ZFS services with:"
+    echo "      dinitctl enable zfs-mount"
+    echo "      dinitctl enable zfs-zvol    # zvols in fstab or as swap"
+    echo "      dinitctl enable zfs-share   # sharenfs/sharesmb"
+    echo "      dinitctl enable zed         # ZFS Event Daemon"
+}
