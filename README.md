@@ -49,7 +49,9 @@ makepkg -si
 ```
 
 Il `PKGBUILD` usa direttamente i file della cartella (`$startdir`), quindi non
-serve nessun tarball. Dipende da `dinit` e `zfs-utils` (repo archzfs).
+serve nessun tarball. Dipende da `dinit`, `zfs-dkms-git` e `zfs-utils-git`
+(AUR): vanno compilati e installati prima, perché `makepkg -s` non installa
+pacchetti dall'AUR.
 
 A mano, senza toccare `/usr/lib`:
 
@@ -77,8 +79,8 @@ rispettati dal boot successivo.
   aggiungilo a `/etc/modules-load.d/`.
 - **Spegnimento:** lo `shutdown-hook` di Artix smonta tutto e rimonta `/` in
   sola lettura; `zpool export` non è necessario.
-- **Da verificare:** i percorsi `/usr/bin/zed` e `/usr/bin/zvol_wait` sono quelli
-  del pacchetto `zfs-utils` di archzfs. Non testato su un sistema Artix reale.
+- **Percorsi:** `zfs-utils-git` compila con `--sbindir=/usr/bin`, quindi `zed`
+  e `zvol_wait` sono in `/usr/bin`. Non ancora testato su un sistema Artix reale.
 
 ## Licenza
 

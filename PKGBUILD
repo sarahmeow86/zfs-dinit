@@ -7,7 +7,7 @@ pkgdesc="dinit service scripts for ZFS (derived from dinit-chimera)"
 arch=('any')
 url="https://github.com/chimera-linux/dinit-chimera"
 license=('BSD-2-Clause')
-depends=('dinit' 'zfs-utils')
+depends=('dinit' 'zfs-dkms-git' 'zfs-utils-git')
 install=zfs-dinit.install
 
 package() {
