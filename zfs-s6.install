@@ -1,0 +1,8 @@
+post_install() {
+    echo "==> zfs-mount is part of the mount bundle and runs at every boot."
+    echo "==> Optional services:"
+    echo "      s6 set enable zed         # ZFS Event Daemon"
+    echo "      s6 set enable zfs-share   # sharenfs/sharesmb"
+    echo "      s6 set enable zfs-zvol    # zvols in fstab or as swap"
+    echo "    then: s6 set commit && s6 live install"
+}

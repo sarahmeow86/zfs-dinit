@@ -1,0 +1,7 @@
+post_install() {
+    echo "==> /etc/rc/sysinit/57-zfs-mount imports pools and mounts datasets at boot."
+    echo "==> Optional services:"
+    echo "      ln -s /etc/runit/sv/zed /etc/runit/runsvdir/default/        # ZFS Event Daemon"
+    echo "      ln -s /etc/runit/sv/zfs-share /etc/runit/runsvdir/default/  # sharenfs/sharesmb"
+    echo "      ln -s /usr/lib/rc/sv.d/zfs-zvol /etc/rc/sysinit/58-zfs-zvol # zvols in fstab or as swap"
+}

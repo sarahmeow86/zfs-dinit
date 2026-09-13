@@ -1,0 +1,2 @@
+#!/bin/execlineb -P
+sh /etc/s6/sv/zfs-mount/shell_up

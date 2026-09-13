@@ -1,0 +1,5 @@
+#!/bin/sh
+# Share datasets with sharenfs/sharesmb set, then stay up so `sv down`
+# unshares them again through ./finish.
+zfs share -a || exit 1
+exec sleep infinity

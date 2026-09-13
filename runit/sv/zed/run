@@ -1,0 +1,3 @@
+#!/bin/sh
+# ZFS Event Daemon
+exec zed -F 2>&1
