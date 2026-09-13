@@ -26,6 +26,10 @@ Si appoggiano ai target di `dinit-rc` di Artix (`early-fs-pre.target`,
 - Su Chimera sono `early-fs-fstab.target` ed `early-fs-local.target` ad avere
   `waits-for: early-fs-zfs`. Qui l'ordinamento è espresso con `before =` nel
   servizio ZFS, così non serve modificare i file di `dinit-rc`.
+- `after = early-root-rw.target` su `zfs-mount`: su Chimera l'import può
+  partire mentre `/` è ancora in sola lettura, e allora `zfs mount -a` non
+  riesce a creare i mountpoint mancanti né `zpool import` ad aggiornare
+  `zpool.cache`.
 - `start-timeout = 0` su `zfs-mount`: `zfs mount -l` può chiedere la passphrase
   dei dataset cifrati, e il timeout predefinito di dinit (60 s) la
   interromperebbe.

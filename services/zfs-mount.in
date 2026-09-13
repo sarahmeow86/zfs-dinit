@@ -7,5 +7,6 @@ restart       = false
 options       = starts-on-console
 start-timeout = 0
 depends-on    = early-fs-pre.target
+after         = early-root-rw.target
 before        = early-fs-fstab.target
 before        = early-fs-local.target
