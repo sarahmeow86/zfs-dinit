@@ -5,7 +5,10 @@
 # Derived from dinit-chimera early/scripts/fs-zfs.sh
 # Copyright 2021-2024 q66 <q66@chimera-linux.org> - BSD-2-Clause
 #
-# TODO: actually handle errors properly
+# A pool that fails to import or a dataset that fails to mount makes the
+# service fail, so `dinitctl status zfs-mount` shows it and the services that
+# depend on it (zed, zfs-share, zfs-zvol) do not start on top of it. Having
+# nothing to import is not a failure: `zpool import -a` exits 0 then.
 
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
@@ -20,10 +23,14 @@ if [ -r /proc/cmdline ]; then
     done
 fi
 
+status=0
+
 if [ -e /etc/zfs/zpool.cache ]; then
-    zpool import -N -a -c /etc/zfs/zpool.cache || exit 0
+    zpool import -N -a -c /etc/zfs/zpool.cache || status=$?
 else
-    zpool import -N -a -o cachefile=none || exit 0
+    zpool import -N -a -o cachefile=none || status=$?
 fi
 
-zfs mount -a -l || exit 0
+zfs mount -a -l || status=$?
+
+exit "$status"

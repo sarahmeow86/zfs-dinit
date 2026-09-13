@@ -23,6 +23,11 @@ Si appoggiano ai target di `dinit-rc` di Artix (`early-fs-pre.target`,
   dal Makefile come fa `dinit-rc` di Artix.
 - `common.sh` non esiste su Artix: dello script resta solo l'`export PATH`;
   il controllo `DINIT_CONTAINER` e `log_debug` sono stati tolti.
+- Gli errori non vengono più ignorati: dinit-chimera chiude ogni passo con
+  `|| exit 0`, qui un pool che non si importa o un dataset che non si monta
+  fanno fallire `zfs-mount` (visibile con `dinitctl status zfs-mount`), e
+  `zed`, `zfs-share` e `zfs-zvol`, che ne dipendono, non partono. Non avere
+  nulla da importare non è un errore: `zpool import -a` esce comunque con 0.
 - Su Chimera sono `early-fs-fstab.target` ed `early-fs-local.target` ad avere
   `waits-for: early-fs-zfs`. Qui l'ordinamento è espresso con `before =` nel
   servizio ZFS, così non serve modificare i file di `dinit-rc`.
@@ -49,9 +54,9 @@ makepkg -si
 ```
 
 Il `PKGBUILD` usa direttamente i file della cartella (`$startdir`), quindi non
-serve nessun tarball. Dipende da `dinit`, `zfs-dkms-git` e `zfs-utils-git`
-(AUR): vanno compilati e installati prima, perché `makepkg -s` non installa
-pacchetti dall'AUR.
+serve nessun tarball. Dipende da `dinit`, `zfs-dkms-git` e `zfs-utils-git`:
+vanno installati prima, da [Chaotic-AUR](https://aur.chaotic.cx) o compilati
+dall'AUR, perché `makepkg -s` non installa pacchetti dall'AUR.
 
 A mano, senza toccare `/usr/lib`:
 
@@ -73,8 +78,9 @@ rispettati dal boot successivo.
 
 ## Note
 
-- **Root su ZFS:** il pool di root lo importa l'initramfs (hook `zfs` di
-  mkinitcpio). `zfs-mount` importa gli altri pool e salta quelli già importati.
+- **Root su ZFS:** il pool di root lo importa l'initramfs (il modulo `90zfs`
+  di dracut, che `zfs-utils-git` installa, o l'hook `zfs` di mkinitcpio).
+  `zfs-mount` importa gli altri pool e salta quelli già importati.
 - **Modulo:** `zpool` carica `zfs` da solo se manca `/dev/zfs`; in alternativa
   aggiungilo a `/etc/modules-load.d/`.
 - **Spegnimento:** lo `shutdown-hook` di Artix smonta tutto e rimonta `/` in
