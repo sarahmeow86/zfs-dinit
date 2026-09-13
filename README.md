@@ -18,7 +18,7 @@ convenzioni di `runit-rc` e `s6-scripts`, sul modello di `lvm2-runit`,
 
 | Servizio    | dinit     | runit                              | s6                                  | Cosa fa |
 |-------------|-----------|------------------------------------|-------------------------------------|---------|
-| `zfs-mount` | scripted  | passo `/etc/rc/sysinit/57-zfs-mount` | oneshot essenziale nel bundle `mount` | `zpool import -N -a` + `zfs mount -a -l`, dopo `/` in lettura/scrittura |
+| `zfs-mount` | scripted  | passo `/etc/rc/sysinit/57-zfs-mount` | oneshot essenziale nel bundle `mount` | import delle pool in `zpool.cache` + `zfs mount -a -l`, dopo `/` in lettura/scrittura |
 | `zfs-zvol`  | scripted  | passo sysinit opzionale            | oneshot                             | `zvol_wait`, se fstab/swap usano zvol (opzionale) |
 | `zfs-share` | scripted  | servizio (`run` + `finish`)        | oneshot (`up` + `down`)             | `zfs share -a` / `zfs unshare -a` (opzionale) |
 | `zed`       | process   | servizio                           | pipeline `zed-srv` + `zed-log`      | ZFS Event Daemon (opzionale) |
@@ -54,6 +54,13 @@ parte a ogni avvio. `zed` è una pipeline con log in `/var/log/zed` (o
   dal Makefile come fa `dinit-rc` di Artix.
 - `common.sh` non esiste su Artix: dello script resta solo l'`export PATH`;
   il controllo `DINIT_CONTAINER` e `log_debug` sono stati tolti.
+- Si importano solo le pool elencate in `/etc/zfs/zpool.cache` (o nel file
+  indicato da `ZPOOL_CACHE` in `/etc/default/zfs`; vuoto disattiva l'import).
+  dinit-chimera, senza cache, esegue `zpool import -a` e importa ogni pool
+  presente sui dischi: su una macchina con pool di altri sistemi, o pool
+  esportate apposta, se ne impadronirebbe. Senza cache qui non si importa
+  nulla e si montano solo i dataset delle pool già importate (quella di root,
+  dall'initramfs).
 - Gli errori non vengono più ignorati: dinit-chimera chiude ogni passo con
   `|| exit 0`, qui un pool che non si importa o un dataset che non si monta
   fanno fallire `zfs-mount` (visibile con `dinitctl status zfs-mount`), e
@@ -133,6 +140,10 @@ sudo s6 set commit && sudo s6 live install
 
 ## Note
 
+- **Pool importate all'avvio:** solo quelle nella cache. Per aggiungerne una:
+  `zpool set cachefile=/etc/zfs/zpool.cache <pool>`; per toglierla:
+  `zpool set cachefile=none <pool>`. Una pool creata o importata a mano con
+  le opzioni predefinite finisce già nella cache.
 - **Root su ZFS:** il pool di root lo importa l'initramfs (il modulo `90zfs`
   di dracut, che `zfs-utils-git` installa, o l'hook `zfs` di mkinitcpio).
   `zfs-mount` importa gli altri pool e salta quelli già importati.

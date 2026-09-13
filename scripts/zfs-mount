@@ -1,14 +1,23 @@
 #!/bin/sh
 #
-# Import ZFS pools and mount their datasets.
+# Import the ZFS pools listed in the cache file and mount their datasets.
 #
 # Derived from dinit-chimera early/scripts/fs-zfs.sh
 # Copyright 2021-2024 q66 <q66@chimera-linux.org> - BSD-2-Clause
 #
+# Only pools in the cache file are imported, never every pool the disks
+# happen to carry: on a machine with pools belonging to other systems, or
+# pools exported on purpose, importing them all would take them over. A pool
+# joins the cache with `zpool set cachefile=/etc/zfs/zpool.cache <pool>`.
+# Without a cache file nothing is imported, and only the datasets of pools
+# already imported (the root pool, by the initramfs) are mounted.
+#
+# ZPOOL_CACHE from /etc/default/zfs sets the cache file; empty disables the
+# import, as it does for OpenZFS's own init scripts.
+#
 # A pool that fails to import or a dataset that fails to mount makes the
-# service fail, so `dinitctl status zfs-mount` shows it and the services that
-# depend on it (zed, zfs-share, zfs-zvol) do not start on top of it. Having
-# nothing to import is not a failure: `zpool import -a` exits 0 then.
+# service fail, so the init system shows it and the services that depend on
+# it (zed, zfs-share, zfs-zvol) do not start on top of it.
 
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
@@ -23,12 +32,15 @@ if [ -r /proc/cmdline ]; then
     done
 fi
 
+ZPOOL_CACHE=/etc/zfs/zpool.cache
+[ -r /etc/default/zfs ] && . /etc/default/zfs
+
 status=0
 
-if [ -e /etc/zfs/zpool.cache ]; then
-    zpool import -N -a -c /etc/zfs/zpool.cache || status=$?
+if [ -n "$ZPOOL_CACHE" ] && [ -s "$ZPOOL_CACHE" ]; then
+    zpool import -N -a -c "$ZPOOL_CACHE" || status=$?
 else
-    zpool import -N -a -o cachefile=none || status=$?
+    echo "zfs-mount: no pool cache at '${ZPOOL_CACHE}', not importing pools" >&2
 fi
 
 zfs mount -a -l || status=$?
