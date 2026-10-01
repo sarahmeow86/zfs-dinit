@@ -94,10 +94,11 @@ makepkg -s
 sudo pacman -U zfs-dinit-*.pkg.tar.zst   # oppure zfs-runit-* / zfs-s6-*
 ```
 
-Dipendono da `dinit`, `runit-rc` o `s6-scripts` e da `zfs-dkms-git` e
-`zfs-utils-git`: questi ultimi vanno installati prima, da
-[Chaotic-AUR](https://aur.chaotic.cx) o compilati dall'AUR, perché
-`makepkg -s` non installa pacchetti dall'AUR.
+Dipendono da `dinit`, `runit-rc` o `s6-scripts` e da `zfs-utils`, che va
+installato prima perché `makepkg -s` non installa pacchetti dall'AUR: lo
+forniscono `zfs-utils-freedomnas` (dal repository pacman di FreedomNAS,
+insieme al kernel `linux-freedomnas` con ZFS già compilato), `zfs-utils-git`
+di [Chaotic-AUR](https://aur.chaotic.cx) o `zfs-utils` dall'AUR.
 
 A mano, con `make install-dinit`, `make install-runit` o `make install-s6`
 (`make install` equivale a `install-dinit`), per esempio senza toccare
@@ -145,13 +146,13 @@ sudo s6 set commit && sudo s6 live install
   `zpool set cachefile=none <pool>`. Una pool creata o importata a mano con
   le opzioni predefinite finisce già nella cache.
 - **Root su ZFS:** il pool di root lo importa l'initramfs (il modulo `90zfs`
-  di dracut, che `zfs-utils-git` installa, o l'hook `zfs` di mkinitcpio).
+  di dracut, che `zfs-utils-freedomnas` e `zfs-utils-git` installano, o l'hook `zfs` di mkinitcpio).
   `zfs-mount` importa gli altri pool e salta quelli già importati.
 - **Modulo:** `zpool` carica `zfs` da solo se manca `/dev/zfs`; in alternativa
   aggiungilo a `/etc/modules-load.d/`.
 - **Spegnimento:** in tutti e tre gli init lo spegnimento di Artix smonta tutto
   e rimonta `/` in sola lettura; `zpool export` non è necessario.
-- **Percorsi:** `zfs-utils-git` compila con `--sbindir=/usr/bin`, quindi `zed`
+- **Percorsi:** `zfs-utils-freedomnas` e `zfs-utils-git` compilano con `--sbindir=/usr/bin`, quindi `zed`
   e `zvol_wait` sono in `/usr/bin`.
 - **Verificato finora:** `zfs-dinit` compilato, installato e abilitato con
   `dinitctl --offline enable` in un Artix creato con pacstrap; le definizioni

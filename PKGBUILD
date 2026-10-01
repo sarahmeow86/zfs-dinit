@@ -5,14 +5,14 @@
 pkgbase=zfs-dinit
 pkgname=('zfs-dinit' 'zfs-runit' 'zfs-s6')
 pkgver=0.2
-pkgrel=1
+pkgrel=2
 arch=('any')
 url="https://codeberg.org/sarahmeow86/zfs-dinit"
 license=('BSD-2-Clause')
 
 package_zfs-dinit() {
     pkgdesc="dinit service scripts for ZFS (derived from dinit-chimera)"
-    depends=('dinit' 'zfs-dkms-git' 'zfs-utils-git')
+    depends=('dinit' 'zfs-utils')
     install=zfs-dinit.install
     make -C "$startdir" DESTDIR="$pkgdir" install-dinit
     install -Dm644 "$startdir/COPYING" "$pkgdir/usr/share/licenses/$pkgname/COPYING"
@@ -20,7 +20,7 @@ package_zfs-dinit() {
 
 package_zfs-runit() {
     pkgdesc="runit-rc sysinit step and runit services for ZFS"
-    depends=('runit-rc' 'zfs-dkms-git' 'zfs-utils-git')
+    depends=('runit-rc' 'zfs-utils')
     install=zfs-runit.install
     make -C "$startdir" DESTDIR="$pkgdir" install-runit
     install -Dm644 "$startdir/COPYING" "$pkgdir/usr/share/licenses/$pkgname/COPYING"
@@ -28,7 +28,7 @@ package_zfs-runit() {
 
 package_zfs-s6() {
     pkgdesc="s6-rc services for ZFS"
-    depends=('s6-scripts' 'zfs-dkms-git' 'zfs-utils-git')
+    depends=('s6-scripts' 'zfs-utils')
     install=zfs-s6.install
     make -C "$startdir" DESTDIR="$pkgdir" install-s6
     install -Dm644 "$startdir/COPYING" "$pkgdir/usr/share/licenses/$pkgname/COPYING"
